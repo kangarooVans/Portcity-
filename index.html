@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticket Book Calculator</title>
+    <title>Ticket Book Calculator Pro</title>
     <link rel="icon" href="Icon.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -36,7 +36,7 @@
             justify-content: flex-end;
             align-items: center;
             gap: 15px;
-            max-width: 1100px;
+            max-width: 1300px;
             margin: 0 auto 15px auto;
             padding: 0 10px;
         }
@@ -70,20 +70,25 @@
         .container {
             display: flex;
             justify-content: center;
-            gap: 25px;
-            max-width: 1100px;
+            gap: 20px;
+            max-width: 1300px;
             margin: 0 auto;
             flex-wrap: wrap;
         }
 
         .panel {
             background: var(--panel-bg);
-            border-radius: 15px;
+            border-radius: 12px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             padding: 25px;
             flex: 1;
-            min-width: 350px;
+            min-width: 320px;
             border: 1px solid var(--border);
+        }
+
+        .sidebar {
+            flex: 0 0 280px;
+            background: #1e1e1f;
         }
 
         .header {
@@ -94,7 +99,7 @@
             border-radius: 10px;
             margin-bottom: 20px;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 16px;
             text-transform: uppercase;
             letter-spacing: 1px;
             border: 1px solid #333;
@@ -102,12 +107,43 @@
 
         h4 {
             margin: 20px 0 10px 0;
-            font-size: 14px;
+            font-size: 13px;
             color: var(--accent);
             text-transform: uppercase;
             border-bottom: 1px solid var(--border);
             padding-bottom: 5px;
             opacity: 0.8;
+        }
+
+        .rate-table {
+            width: 100%;
+            font-size: 13px;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        .rate-table td { padding: 6px 0; border-bottom: 1px solid #2d2d2f; }
+        .rate-table td:last-child { text-align: right; font-weight: bold; color: #fff; }
+        .rate-label { color: var(--accent); font-weight: bold; font-size: 14px; margin-bottom: 8px; display: block; }
+
+        .policy-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 12px;
+            color: var(--text-dim);
+            line-height: 1.5;
+        }
+        .policy-list li {
+            position: relative;
+            padding-left: 18px;
+            margin-bottom: 12px;
+        }
+        .policy-list li::before {
+            content: "•";
+            color: var(--accent);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
         }
 
         p { font-size: 14px; margin-bottom: 8px; font-weight: 600; color: var(--text-dim); }
@@ -127,7 +163,6 @@
 
         input:focus { border-color: var(--accent); outline: none; }
 
-        /* Style for the date input to show icon more clearly */
         input[type="date"]::-webkit-calendar-picker-indicator {
             filter: invert(1) sepia(100%) saturate(10000%) hue-rotate(10deg);
             cursor: pointer;
@@ -213,7 +248,7 @@
 
         .modal-content { background: var(--panel-bg); padding: 25px; border-radius: 12px; text-align: center; max-width: 300px; border: 1px solid var(--border); }
 
-        @media (max-width: 850px) { .container { flex-direction: column; } }
+        @media (max-width: 1100px) { .sidebar { flex: 1 1 100%; order: 3; } .container { flex-direction: column; } }
     </style>
 </head>
 <body>
@@ -286,6 +321,34 @@
         <h4>Additional Notes</h4>
         <textarea id="notesBox" style="height: 100px;" placeholder="Write notes here..."></textarea>
     </div>
+
+    <div class="panel sidebar">
+        <div class="header">Rate Guide</div>
+        <span class="rate-label">BUS</span>
+        <table class="rate-table">
+            <tr><td>0 - 25km</td><td>15,000/=</td></tr>
+            <tr><td>26 - 50km</td><td>20,000/-</td></tr>
+            <tr><td>51 - 75km</td><td>25,000/-</td></tr>
+            <tr><td>76 - 100km</td><td>30,000/=</td></tr>
+            <tr><td>101 - 125km</td><td>35,000/=</td></tr>
+            <tr><td>126 - 150km</td><td>40,000/=</td></tr>
+        </table>
+        <span class="rate-label">VAN</span>
+        <table class="rate-table">
+            <tr><td>0 - 25km</td><td>13,500/=</td></tr>
+            <tr><td>26 - 50km</td><td>15,000/=</td></tr>
+            <tr><td>51 - 75km</td><td>20,000/=</td></tr>
+            <tr><td>76 - 100km</td><td>25,000/=</td></tr>
+            <tr><td>101 - 125km</td><td>30,000/=</td></tr>
+            <tr><td>126 - 150km</td><td>35,000/=</td></tr>
+        </table>
+        <h4>Rules & Notes</h4>
+        <ul class="policy-list">
+            <li>For packages: Always pay the lower amount between Ticket Income and Log Sheet Rate.</li>
+            <li>Double-check book numbers to avoid sequence errors.</li>
+            <li>Always verify all data before copying for submission.</li>
+        </ul>
+    </div>
 </div>
 
 <div class="watermark">Developed by Dinada Balasuriya</div>
@@ -312,13 +375,22 @@
         const err = document.getElementById("loginError");
         const email = user.includes('@') ? user : user + "@ticket.com";
 
-        signInWithEmailAndPassword(auth, email, pass).catch(error => {
+        signInWithEmailAndPassword(auth, email, pass).then(() => {
+            document.getElementById("loginUser").value = "";
+            document.getElementById("loginPass").value = "";
+            err.style.display = "none";
+        }).catch(error => {
             err.innerText = "Access Denied: Invalid Credentials";
             err.style.display = "block";
         });
     };
 
-    window.handleLogout = () => { signOut(auth); };
+    window.handleLogout = () => { 
+        signOut(auth).then(() => {
+            document.getElementById("loginUser").value = "";
+            document.getElementById("loginPass").value = "";
+        }); 
+    };
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
@@ -334,7 +406,6 @@
 </script>
 
 <script>
-    // SET DEFAULT DATE TO TODAY
     window.addEventListener('load', () => {
         const today = new Date().toISOString().split('T')[0];
         document.getElementById("selectedDate").value = today;
@@ -443,11 +514,11 @@
         if (day === 0) bookColor = "BLUE TICKET BOOK";
         else if (day === 6) bookColor = "YELLOW TICKET BOOK";
 
-        let message = `${dateStr}\n\n${bookColor}\n\n`;
+        let message = `*${dateStr}*\n\n*${bookColor}*\n\n`;
         report.forEach(r => { message += r.line + "\n"; });
 
         if (oneWayReport.length > 0) {
-            message += `\nONE WAY TICKETS\n\n`;
+            message += `\n*ONE WAY TICKETS*\n\n`;
             oneWayReport.forEach(r => { message += r.line + "\n"; });
         }
 
@@ -462,7 +533,7 @@
         const formattedOneWay = oneWayTotalLKR.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         const formattedTotal = totalTicketAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
-        message += `\nTICKET SUMMARY\n\n`;
+        message += `\n*TICKET SUMMARY*\n\n`;
         message += `      NORMAL TICKETS ${totalNormal}*250 = LKR ${formattedNormal}\n`;
         message += `      ONEWAY TICKETS ${totalOneWay}*200 = LKR ${formattedOneWay}\n\n`;
         message += `TOTAL AMOUNT = LKR ${formattedTotal}`;
@@ -484,7 +555,7 @@
         let driverAmount = Math.min(totalTicketAmount, kmAmount);
         const formattedDriver = driverAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         message += `\n\nDRIVER - ${driver} - CAB ${cab} - ${km} KM | LKR ${formattedDriver}`;
-        message += `\n\n_Created by ${window.currentUser || "AUTHORIZED USER"}_`;
+        message += `\n\n_*Created by ${window.currentUser || "AUTHORIZED USER"}*_`;
 
         document.getElementById("output").innerText = message;
         showToast("Summary Generated", "success");
