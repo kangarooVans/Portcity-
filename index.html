@@ -127,6 +127,12 @@
 
         input:focus { border-color: var(--accent); outline: none; }
 
+        /* Style for the date input to show icon more clearly */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1) sepia(100%) saturate(10000%) hue-rotate(10deg);
+            cursor: pointer;
+        }
+
         .flex { display: flex; justify-content: space-between; gap: 10px; margin-top: 5px; }
 
         button {
@@ -328,6 +334,12 @@
 </script>
 
 <script>
+    // SET DEFAULT DATE TO TODAY
+    window.addEventListener('load', () => {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById("selectedDate").value = today;
+    });
+
     function showToast(msg, type = 'info') {
         const toast = document.getElementById("toast");
         toast.innerText = msg; toast.style.display = "block";
@@ -482,7 +494,9 @@
         report = []; oneWayReport = []; status = ""; editingIndex = null; editingType = null;
         document.getElementById("bookList").innerText = "No books added yet.";
         document.getElementById("output").innerText = "No summary yet.";
-        document.getElementById("selectedDate").value = ""; document.getElementById("driverName").value = "";
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById("selectedDate").value = today;
+        document.getElementById("driverName").value = "";
         document.getElementById("cabNumber").value = ""; document.getElementById("kilometers").value = "";
         document.getElementById("notesBox").value = ""; document.getElementById("inputs").style.display = "none";
         showToast("All data cleared", "info");
