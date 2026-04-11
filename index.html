@@ -10,13 +10,13 @@
 
     <style>
         :root {
-            --bg: #f0f0f0;
-            --panel-bg: #ffffff;
-            --header-bg: #222222;
-            --accent: #f5c518; /* Your Original Yellow */
-            --text: #222222;
-            --text-dim: #555555;
-            --border: #cccccc;
+            --bg: #1a1a1b;
+            --panel-bg: #262627;
+            --header-bg: #121212;
+            --accent: #f5c518; 
+            --text: #e0e0e0;
+            --text-dim: #b0b0b0;
+            --border: #3e3e40;
             --success: #28a745;
             --danger: #dc3545;
             --blue: #007bff;
@@ -30,34 +30,42 @@
             padding: 20px;
         }
 
-        /* LOGIN OVERLAY STYLES */
+        /* USER NAV BAR */
+        #userNav {
+            display: none;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 15px;
+            max-width: 1100px;
+            margin: 0 auto 15px auto;
+            padding: 0 10px;
+        }
+        .user-badge { font-weight: bold; color: var(--accent); font-size: 14px; text-transform: uppercase; }
+        .logout-btn { background: #333; color: #fff; padding: 5px 12px; font-size: 12px; border-radius: 5px; cursor: pointer; border: 1px solid var(--border); }
+
+        /* LOGIN OVERLAY */
         #loginOverlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: #121212;
+            background: var(--bg);
             display: flex;
             justify-content: center;
             align-items: center;
             z-index: 9999;
         }
         .login-box {
-            background: white;
+            background: var(--panel-bg);
             padding: 35px;
             border-radius: 15px;
             text-align: center;
             width: 320px;
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            border: 1px solid var(--border);
         }
 
-        /* REMOVE UP/DOWN ARROWS */
         input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-        input[type=number] {
-            -moz-appearance: textfield;
-        }
+        input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
 
         .container {
             display: flex;
@@ -71,11 +79,11 @@
         .panel {
             background: var(--panel-bg);
             border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             padding: 25px;
             flex: 1;
             min-width: 350px;
-            border: 1px solid rgba(0,0,0,0.05);
+            border: 1px solid var(--border);
         }
 
         .header {
@@ -89,18 +97,20 @@
             font-size: 18px;
             text-transform: uppercase;
             letter-spacing: 1px;
+            border: 1px solid #333;
         }
 
         h4 {
             margin: 20px 0 10px 0;
             font-size: 14px;
-            color: var(--text-dim);
+            color: var(--accent);
             text-transform: uppercase;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border);
             padding-bottom: 5px;
+            opacity: 0.8;
         }
 
-        p { font-size: 14px; margin-bottom: 8px; font-weight: 600; }
+        p { font-size: 14px; margin-bottom: 8px; font-weight: 600; color: var(--text-dim); }
 
         input, textarea {
             width: 100%;
@@ -108,22 +118,16 @@
             margin: 8px 0;
             border-radius: 8px;
             border: 1px solid var(--border);
+            background: #121212;
+            color: white;
             font-size: 14px;
             box-sizing: border-box;
             transition: border 0.2s;
         }
 
-        input:focus {
-            border-color: var(--accent);
-            outline: none;
-        }
+        input:focus { border-color: var(--accent); outline: none; }
 
-        .flex {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-            margin-top: 5px;
-        }
+        .flex { display: flex; justify-content: space-between; gap: 10px; margin-top: 5px; }
 
         button {
             padding: 12px;
@@ -144,21 +148,22 @@
         .yes { background: var(--success); color: white; flex: 1; }
         .no { background: var(--danger); color: white; flex: 1; }
         .add { background: var(--accent); color: #222; width: 100%; margin-top: 15px; }
-        .finish { background: var(--header-bg); color: var(--accent); width: 100%; margin-top: 15px; }
-        .reset { background: var(--accent); color: #222; width: 100%; margin-top: 10px; }
+        .finish { background: var(--header-bg); color: var(--accent); width: 100%; margin-top: 15px; border: 1px solid var(--accent); }
+        .reset { background: #333; color: var(--text); width: 100%; margin-top: 10px; border: 1px solid var(--border); }
         .copy { background: var(--blue); color: white; font-size: 12px; padding: 6px 12px; }
 
         #bookList, #output {
-            border: 1px solid #ddd;
+            border: 1px solid var(--border);
             padding: 15px;
             border-radius: 8px;
-            background: #fafafa;
+            background: #121212;
             max-height: 250px;
             overflow-y: auto;
             white-space: pre-line;
             margin-top: 10px;
             font-family: 'Courier New', Courier, monospace;
             font-size: 13px;
+            color: #fff;
         }
 
         #output { border-left: 5px solid var(--accent); }
@@ -168,78 +173,41 @@
             justify-content: space-between;
             align-items: center;
             padding: 6px 0;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border);
         }
 
-        .edit-btn {
-            background: var(--accent);
-            color: #222;
-            padding: 2px 8px;
-            font-size: 11px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+        .edit-btn { background: var(--accent); color: #222; padding: 2px 8px; font-size: 11px; border-radius: 4px; cursor: pointer; }
 
         .disclaimer {
-            background: #ffeeba;
-            color: #856404;
+            background: #332b00;
+            color: var(--accent);
             font-size: 12px;
             padding: 10px;
             border-radius: 6px;
             margin-bottom: 15px;
             text-align: center;
             font-weight: 600;
+            border: 1px solid #443c00;
         }
 
-        .watermark {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 12px;
-            color: #888;
-            font-weight: 600;
-        }
+        .watermark { text-align: center; margin-top: 30px; font-size: 12px; color: #555; font-weight: 600; }
 
         #toast {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            padding: 15px 25px;
-            border-radius: 8px;
-            color: white;
-            font-weight: 600;
-            font-size: 14px;
-            z-index: 1000;
-            display: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+            position: fixed; bottom: 25px; right: 25px; padding: 15px 25px; border-radius: 8px; color: white;
+            font-weight: 600; font-size: 14px; z-index: 1000; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
             animation: slideInRight 0.4s ease-out;
         }
 
-        @keyframes slideInRight {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
         #confirmModal {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); display: none; justify-content: center; align-items: center; z-index: 2000;
         }
 
-        .modal-content {
-            background: white;
-            padding: 25px;
-            border-radius: 12px;
-            text-align: center;
-            max-width: 300px;
-        }
+        .modal-content { background: var(--panel-bg); padding: 25px; border-radius: 12px; text-align: center; max-width: 300px; border: 1px solid var(--border); }
 
-        @media (max-width: 850px) {
-            .container { flex-direction: column; }
-        }
+        @media (max-width: 850px) { .container { flex-direction: column; } }
     </style>
 </head>
 <body>
@@ -247,12 +215,17 @@
 <div id="loginOverlay">
     <div class="login-box">
         <div class="header" style="margin-bottom:10px;">Login</div>
-        <p style="font-size: 12px; color: #666; margin-bottom: 20px;">Enter your system username</p>
+        <p style="font-size: 12px; margin-bottom: 20px;">Enter system credentials</p>
         <input type="text" id="loginUser" placeholder="Username">
         <input type="password" id="loginPass" placeholder="Password">
         <button class="add" id="loginBtn" onclick="window.handleLogin()">Login</button>
-        <div id="loginError" style="color:red; font-size:11px; margin-top:10px; display:none;"></div>
+        <div id="loginError" style="color:var(--danger); font-size:11px; margin-top:10px; display:none;"></div>
     </div>
+</div>
+
+<div id="userNav">
+    <span class="user-badge" id="displayUser"></span>
+    <button class="logout-btn" onclick="window.handleLogout()">Logout</button>
 </div>
 
 <div id="toast"></div>
@@ -268,67 +241,52 @@
 </div>
 
 <div class="container">
-
     <div class="panel">
         <div class="header">Ticket Entry</div>
-
         <p>Select Date:</p>
         <input type="date" id="selectedDate">
         <input type="number" id="book" placeholder="Book Number">
-
         <p>Is the book finished?</p>
         <div class="flex">
             <button class="yes" id="btnYes" onclick="setStatus('yes')">Yes</button>
             <button class="no" id="btnNo" onclick="setStatus('no')">No</button>
         </div>
-
         <div id="inputs" style="display:none; margin-top:10px;">
             <div class="flex">
                 <input type="number" id="first" placeholder="First sold">
                 <input type="number" id="last" placeholder="Last / Remaining">
             </div>
         </div>
-
         <button class="add" onclick="addBook()"><i data-lucide="plus-circle" size="16"></i> Add Book</button>
-
         <h4>Driver & Cab Info</h4>
         <input type="text" id="driverName" placeholder="Driver Name">
         <div class="flex">
             <input type="text" id="cabNumber" placeholder="Cab Number">
             <input type="number" id="kilometers" placeholder="KM">
         </div>
-
         <button class="finish" onclick="finish()">Generate Message</button>
         <button class="reset" onclick="triggerReset()">Reset All Data</button>
-
         <h4>Books Added</h4>
         <div id="bookList">No books added yet.</div>
     </div>
 
     <div class="panel">
         <div class="header">Summary</div>
-
-        <div class="disclaimer">
-            Verify all details carefully before sending.
-        </div>
-
+        <div class="disclaimer">Verify all details carefully before sending.</div>
         <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
             <button class="copy" onclick="copySummary()"><i data-lucide="copy" size="14"></i> Copy Summary</button>
         </div>
-
         <div id="output">No summary yet.</div>
-
         <h4>Additional Notes</h4>
         <textarea id="notesBox" style="height: 100px;" placeholder="Write notes here..."></textarea>
     </div>
-
 </div>
 
 <div class="watermark">Developed by Dinada Balasuriya</div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyBpUXUmwWGghBQyHOSmOtFlv-1ZrOYztf0",
@@ -346,58 +304,50 @@
         const user = document.getElementById("loginUser").value.trim();
         const pass = document.getElementById("loginPass").value.trim();
         const err = document.getElementById("loginError");
-        
-        // Append hidden domain
         const email = user.includes('@') ? user : user + "@ticket.com";
 
-        signInWithEmailAndPassword(auth, email, pass)
-            .catch(error => {
-                err.innerText = "Access Denied: Invalid Credentials";
-                err.style.display = "block";
-            });
+        signInWithEmailAndPassword(auth, email, pass).catch(error => {
+            err.innerText = "Access Denied: Invalid Credentials";
+            err.style.display = "block";
+        });
     };
+
+    window.handleLogout = () => { signOut(auth); };
 
     onAuthStateChanged(auth, (user) => {
         if (user) {
             window.currentUser = user.email.split('@')[0].toUpperCase();
             document.getElementById("loginOverlay").style.display = "none";
+            document.getElementById("userNav").style.display = "flex";
+            document.getElementById("displayUser").innerText = "Logged in: " + window.currentUser;
         } else {
             document.getElementById("loginOverlay").style.display = "flex";
+            document.getElementById("userNav").style.display = "none";
         }
     });
 </script>
 
 <script>
-    // --- HELPER FOR IN-BUILT MESSAGES ---
     function showToast(msg, type = 'info') {
         const toast = document.getElementById("toast");
-        toast.innerText = msg;
-        toast.style.display = "block";
+        toast.innerText = msg; toast.style.display = "block";
         toast.style.backgroundColor = type === 'error' ? '#dc3545' : (type === 'success' ? '#28a745' : '#333');
-        
         setTimeout(() => { toast.style.display = "none"; }, 2500);
     }
 
-    function triggerReset() {
-        document.getElementById("confirmModal").style.display = "flex";
-    }
-
+    function triggerReset() { document.getElementById("confirmModal").style.display = "flex"; }
     function closeConfirm(confirmed) {
         document.getElementById("confirmModal").style.display = "none";
         if (confirmed) resetAll();
     }
 
-    // --- LOGIC ---
     let status = "";
     let report = [];
     let oneWayReport = [];
     let editingIndex = null;
     let editingType = null;
 
-    function setStatus(choice) {
-        status = choice;
-        document.getElementById("inputs").style.display = "block";
-    }
+    function setStatus(choice) { status = choice; document.getElementById("inputs").style.display = "block"; }
 
     function addBook() {
         const bookInput = document.getElementById("book").value.trim();
@@ -405,28 +355,22 @@
         const lastInput = document.getElementById("last").value.trim();
 
         if (!bookInput || !firstInput || !lastInput || status === "") {
-            showToast("Please fill all fields", "error");
-            return;
+            showToast("Please fill all fields", "error"); return;
         }
 
         const book = Number(bookInput);
         const first = Number(firstInput);
         const last = Number(lastInput);
 
-        if (last < first) {
-            showToast("Last ticket cannot be smaller than first ticket", "error");
-            return;
-        }
+        if (last < first) { showToast("Last ticket cannot be smaller than first ticket", "error"); return; }
 
         let tickets = status === "yes" ? (last - first + 1) : (last - first);
         let line = `      TICKETS BOOK NO ${book} - ${first} - ${last} = ${tickets} TICKETS`;
-
         const targetArray = book < 100 ? oneWayReport : report;
 
         if (editingIndex !== null && editingType !== null) {
             targetArray[editingIndex] = {line: line, tickets: tickets};
-            editingIndex = null;
-            editingType = null;
+            editingIndex = null; editingType = null;
             showToast("Book updated successfully", "success");
         } else {
             targetArray.push({line: line, tickets: tickets});
@@ -437,8 +381,7 @@
         document.getElementById("book").value = "";
         document.getElementById("first").value = "";
         document.getElementById("last").value = "";
-        status = "";
-        document.getElementById("inputs").style.display = "none";
+        status = ""; document.getElementById("inputs").style.display = "none";
     }
 
     function updateBookList() {
@@ -446,10 +389,7 @@
         let combinedList = [...report.map((r,i) => ({...r, type:'normal', idx:i})), 
                             ...oneWayReport.map((r,i) => ({...r, type:'oneway', idx:i}))];
 
-        if (combinedList.length === 0) {
-            listDiv.innerText = "No books added yet.";
-            return;
-        }
+        if (combinedList.length === 0) { listDiv.innerText = "No books added yet."; return; }
 
         listDiv.innerHTML = "";
         combinedList.forEach((item, i) => {
@@ -471,39 +411,31 @@
             document.getElementById("last").value = matches[3];
             status = (parseInt(matches[3]) - parseInt(matches[2]) + 1 === book.tickets) ? "yes" : "no";
             document.getElementById("inputs").style.display = "block";
-            editingIndex = index;
-            editingType = type;
+            editingIndex = index; editingType = type;
         }
     }
 
     function finish() {
-        if (report.length === 0 && oneWayReport.length === 0) {
-            showToast("No books added!", "error");
-            return;
-        }
-
+        if (report.length === 0 && oneWayReport.length === 0) { showToast("No books added!", "error"); return; }
         const dateInput = document.getElementById("selectedDate").value;
-        if (!dateInput) {
-            showToast("Please select a date!", "error");
-            return;
-        }
+        if (!dateInput) { showToast("Please select a date!", "error"); return; }
 
         const selected = new Date(dateInput);
         const dd = String(selected.getDate()).padStart(2, '0');
         const mm = String(selected.getMonth() + 1).padStart(2, '0');
         const yyyy = selected.getFullYear();
-        const dateStr = `*${dd}.${mm}.${yyyy}*`;
+        const dateStr = `${dd}.${mm}.${yyyy}`;
 
         const day = selected.getDay();
-        let bookColor = "*WHITE TICKET BOOK*";
-        if (day === 0) bookColor = "*BLUE TICKET BOOK*";
-        else if (day === 6) bookColor = "*YELLOW TICKET BOOK*";
+        let bookColor = "WHITE TICKET BOOK";
+        if (day === 0) bookColor = "BLUE TICKET BOOK";
+        else if (day === 6) bookColor = "YELLOW TICKET BOOK";
 
         let message = `${dateStr}\n\n${bookColor}\n\n`;
         report.forEach(r => { message += r.line + "\n"; });
 
         if (oneWayReport.length > 0) {
-            message += `\n*ONE WAY TICKETS*\n\n`;
+            message += `\nONE WAY TICKETS\n\n`;
             oneWayReport.forEach(r => { message += r.line + "\n"; });
         }
 
@@ -518,10 +450,10 @@
         const formattedOneWay = oneWayTotalLKR.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         const formattedTotal = totalTicketAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
-        message += `\n*TICKET SUMMARY*\n\n`;
+        message += `\nTICKET SUMMARY\n\n`;
         message += `      NORMAL TICKETS ${totalNormal}*250 = LKR ${formattedNormal}\n`;
         message += `      ONEWAY TICKETS ${totalOneWay}*200 = LKR ${formattedOneWay}\n\n`;
-        message += `      TOTAL AMOUNT = LKR ${formattedTotal}`;
+        message += `TOTAL AMOUNT = LKR ${formattedTotal}`;
 
         const driver = document.getElementById("driverName").value || "N/A";
         const cab = document.getElementById("cabNumber").value || "N/A";
@@ -529,29 +461,18 @@
 
         let kmAmount = 0;
         const cabNum = parseInt(cab);
-
         if (cabNum <= 9000) {
-            if (km <= 25) kmAmount = 13500;
-            else if (km <= 50) kmAmount = 15000;
-            else if (km <= 75) kmAmount = 20000;
-            else if (km <= 100) kmAmount = 25000;
-            else if (km <= 125) kmAmount = 30000;
-            else kmAmount = 30000;
+            if (km <= 25) kmAmount = 13500; else if (km <= 50) kmAmount = 15000; else if (km <= 75) kmAmount = 20000;
+            else if (km <= 100) kmAmount = 25000; else if (km <= 125) kmAmount = 30000; else kmAmount = 30000;
         } else {
-            if (km <= 25) kmAmount = 15000;
-            else if (km <= 50) kmAmount = 20000;
-            else if (km <= 75) kmAmount = 25000;
-            else if (km <= 100) kmAmount = 30000;
-            else if (km <= 125) kmAmount = 35000;
-            else kmAmount = 35000;
+            if (km <= 25) kmAmount = 15000; else if (km <= 50) kmAmount = 20000; else if (km <= 75) kmAmount = 25000;
+            else if (km <= 100) kmAmount = 30000; else if (km <= 125) kmAmount = 35000; else kmAmount = 35000;
         }
 
         let driverAmount = Math.min(totalTicketAmount, kmAmount);
         const formattedDriver = driverAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         message += `\n\nDRIVER - ${driver} - CAB ${cab} - ${km} KM | LKR ${formattedDriver}`;
-
-        // ADD AUTHENTICATED USER
-        message += `\n\nCreated by: ${window.currentUser || "AUTHORIZED USER"}`;
+        message += `\n\n_Created by ${window.currentUser || "AUTHORIZED USER"}_`;
 
         document.getElementById("output").innerText = message;
         showToast("Summary Generated", "success");
@@ -561,19 +482,13 @@
         report = []; oneWayReport = []; status = ""; editingIndex = null; editingType = null;
         document.getElementById("bookList").innerText = "No books added yet.";
         document.getElementById("output").innerText = "No summary yet.";
-        document.getElementById("selectedDate").value = "";
-        document.getElementById("driverName").value = "";
-        document.getElementById("cabNumber").value = "";
-        document.getElementById("kilometers").value = "";
-        document.getElementById("notesBox").value = "";
-        document.getElementById("inputs").style.display = "none";
+        document.getElementById("selectedDate").value = ""; document.getElementById("driverName").value = "";
+        document.getElementById("cabNumber").value = ""; document.getElementById("kilometers").value = "";
+        document.getElementById("notesBox").value = ""; document.getElementById("inputs").style.display = "none";
         showToast("All data cleared", "info");
     }
 
-    function copySummary() {
-        navigator.clipboard.writeText(document.getElementById("output").innerText);
-        showToast("Copied to clipboard!", "success");
-    }
+    function copySummary() { navigator.clipboard.writeText(document.getElementById("output").innerText); showToast("Copied to clipboard!", "success"); }
 
     lucide.createIcons();
 </script>
