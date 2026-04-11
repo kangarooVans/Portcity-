@@ -152,7 +152,7 @@ body.dark .login-box { background: #1e1e1e; color: #e0e0e0; }
     <div class="login-box">
         <div class="header">System Login</div>
         <p style="font-size: 12px;">Enter your credentials to continue</p>
-        <input type="email" id="loginEmail" placeholder="Email Address">
+        <input type="text" id="loginUsername" placeholder="Username">
         <input type="password" id="loginPass" placeholder="Password">
         <button class="add" onclick="window.handleLogin()">Login</button>
         <div id="loginError" class="error" style="display:none;"></div>
@@ -226,13 +226,15 @@ body.dark .login-box { background: #1e1e1e; color: #e0e0e0; }
     window.currentUser = "";
 
     window.handleLogin = () => {
-        const email = document.getElementById("loginEmail").value;
+        // Automatically appends @ticket.com to whatever they type
+        const userField = document.getElementById("loginUsername").value;
+        const email = userField.includes('@') ? userField : userField + "@ticket.com";
         const pass = document.getElementById("loginPass").value;
         const errDiv = document.getElementById("loginError");
 
         signInWithEmailAndPassword(auth, email, pass)
             .catch(error => {
-                errDiv.innerText = error.message;
+                errDiv.innerText = "Invalid Username or Password";
                 errDiv.style.display = "block";
             });
     };
