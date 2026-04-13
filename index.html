@@ -53,6 +53,20 @@
             align-items: center;
             z-index: 9999;
         }
+        
+        /* SESSION EXPIRED OVERLAY (Smart Lock) */
+        #sessionOverlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            backdrop-filter: blur(5px);
+        }
+
         .login-box {
             background: var(--panel-bg);
             padding: 35px;
@@ -264,6 +278,14 @@
     </div>
 </div>
 
+<div id="sessionOverlay">
+    <div class="login-box">
+        <div class="header" style="background:var(--danger); color:white; margin-bottom:10px;">Session Expired</div>
+        <p style="font-size: 13px; margin-bottom: 20px; color:var(--text);">System locked due to inactivity.<br>Progress has been saved.</p>
+        <button class="add" onclick="location.reload()">Login to Resume</button>
+    </div>
+</div>
+
 <div id="userNav">
     <span class="user-badge" id="displayUser"></span>
     <button class="logout-btn" onclick="window.handleLogout()">Logout</button>
@@ -369,6 +391,30 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
+    // --- SMART AUTO LOCK LOGIC ---
+    let idleTimer;
+    const INACTIVITY_LIMIT = 20 * 60 * 1000; // 20 Minutes
+
+    function resetIdleTimer() {
+        clearTimeout(idleTimer);
+        if (auth.currentUser) {
+            idleTimer = setTimeout(handleAutoLogout, INACTIVITY_LIMIT);
+        }
+    }
+
+    function handleAutoLogout() {
+        if (auth.currentUser) {
+            signOut(auth).then(() => {
+                document.getElementById("sessionOverlay").style.display = "flex";
+            });
+        }
+    }
+
+    // Monitor interactions
+    ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(evt => {
+        window.addEventListener(evt, resetIdleTimer, true);
+    });
+
     window.handleLogin = () => {
         const user = document.getElementById("loginUser").value.trim();
         const pass = document.getElementById("loginPass").value.trim();
@@ -398,9 +444,11 @@
             document.getElementById("loginOverlay").style.display = "none";
             document.getElementById("userNav").style.display = "flex";
             document.getElementById("displayUser").innerText = "Logged in: " + window.currentUser;
+            resetIdleTimer();
         } else {
             document.getElementById("loginOverlay").style.display = "flex";
             document.getElementById("userNav").style.display = "none";
+            clearTimeout(idleTimer);
         }
     });
 </script>
