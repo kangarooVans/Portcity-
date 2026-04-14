@@ -322,10 +322,10 @@
         </div>
         <button class="add" onclick="addBook()"><i data-lucide="plus-circle" size="16"></i> Add Book</button>
         <h4>Driver & Cab Info</h4>
-        <input type="text" id="driverName" placeholder="Driver Name">
+        <input type="text" id="driverName" oninput="saveInputs()" placeholder="Driver Name">
         <div class="flex">
-            <input type="text" id="cabNumber" placeholder="Cab Number">
-            <input type="number" id="kilometers" placeholder="KM">
+            <input type="text" id="cabNumber" oninput="saveInputs()" placeholder="Cab Number">
+            <input type="number" id="kilometers" oninput="saveInputs()" placeholder="KM">
         </div>
         <button class="finish" onclick="finish()">Generate Message</button>
         <button class="reset" onclick="triggerReset()">Reset All Data</button>
@@ -341,7 +341,7 @@
         </div>
         <div id="output">No summary yet.</div>
         <h4>Additional Notes</h4>
-        <textarea id="notesBox" style="height: 100px;" placeholder="Write notes here..."></textarea>
+        <textarea id="notesBox" oninput="saveInputs()" style="height: 100px;" placeholder="Write notes here..."></textarea>
     </div>
 
     <div class="panel sidebar">
@@ -393,7 +393,7 @@
 
     // --- SMART AUTO LOCK LOGIC ---
     let idleTimer;
-    const INACTIVITY_LIMIT = 20 * 60 * 1000; // 20 Minutes
+    const INACTIVITY_LIMIT = 10 * 60 * 1000; 
 
     function resetIdleTimer() {
         clearTimeout(idleTimer);
@@ -410,7 +410,6 @@
         }
     }
 
-    // Monitor interactions
     ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(evt => {
         window.addEventListener(evt, resetIdleTimer, true);
     });
@@ -445,6 +444,8 @@
             document.getElementById("userNav").style.display = "flex";
             document.getElementById("displayUser").innerText = "Logged in: " + window.currentUser;
             resetIdleTimer();
+            // Recover data on login
+            if(window.loadSavedData) window.loadSavedData();
         } else {
             document.getElementById("loginOverlay").style.display = "flex";
             document.getElementById("userNav").style.display = "none";
@@ -454,6 +455,31 @@
 </script>
 
 <script>
+    // --- PERSISTENCE LOGIC (The fix) ---
+    function saveInputs() {
+        localStorage.setItem("driverName", document.getElementById("driverName").value);
+        localStorage.setItem("cabNumber", document.getElementById("cabNumber").value);
+        localStorage.setItem("kilometers", document.getElementById("kilometers").value);
+        localStorage.setItem("notesBox", document.getElementById("notesBox").value);
+        localStorage.setItem("report", JSON.stringify(report));
+        localStorage.setItem("oneWayReport", JSON.stringify(oneWayReport));
+    }
+
+    window.loadSavedData = function() {
+        document.getElementById("driverName").value = localStorage.getItem("driverName") || "";
+        document.getElementById("cabNumber").value = localStorage.getItem("cabNumber") || "";
+        document.getElementById("kilometers").value = localStorage.getItem("kilometers") || "";
+        document.getElementById("notesBox").value = localStorage.getItem("notesBox") || "";
+        
+        const savedReport = localStorage.getItem("report");
+        const savedOneWay = localStorage.getItem("oneWayReport");
+        
+        if (savedReport) report = JSON.parse(savedReport);
+        if (savedOneWay) oneWayReport = JSON.parse(savedOneWay);
+        
+        updateBookList();
+    }
+
     window.addEventListener('load', () => {
         const today = new Date().toISOString().split('T')[0];
         document.getElementById("selectedDate").value = today;
@@ -509,6 +535,7 @@
         }
 
         updateBookList();
+        saveInputs(); // Save to storage
         document.getElementById("book").value = "";
         document.getElementById("first").value = "";
         document.getElementById("last").value = "";
@@ -607,10 +634,12 @@
 
         document.getElementById("output").innerText = message;
         showToast("Summary Generated", "success");
+        saveInputs();
     }
 
     function resetAll() {
         report = []; oneWayReport = []; status = ""; editingIndex = null; editingType = null;
+        localStorage.clear(); // Wipe the saved data
         document.getElementById("bookList").innerText = "No books added yet.";
         document.getElementById("output").innerText = "No summary yet.";
         const today = new Date().toISOString().split('T')[0];
