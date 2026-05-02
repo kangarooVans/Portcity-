@@ -600,7 +600,7 @@
         const totalNormal = report.reduce((sum, r) => sum + r.tickets, 0);
         const totalOneWay = oneWayReport.reduce((sum, r) => sum + r.tickets, 0);
 
-        const normalTotalLKR = totalNormal * 250;
+        const normalTotalLKR = totalNormal * 300;
         const oneWayTotalLKR = totalOneWay * 200;
         const totalTicketAmount = normalTotalLKR + oneWayTotalLKR;
 
@@ -609,7 +609,7 @@
         const formattedTotal = totalTicketAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
         message += `\n*TICKET SUMMARY*\n\n`;
-        message += `      NORMAL TICKETS ${totalNormal}*250 = LKR ${formattedNormal}\n`;
+        message += `      NORMAL TICKETS ${totalNormal}*300 = LKR ${formattedNormal}\n`;
         message += `      ONEWAY TICKETS ${totalOneWay}*200 = LKR ${formattedOneWay}\n\n`;
         message += `TOTAL AMOUNT = LKR ${formattedTotal}`;
 
