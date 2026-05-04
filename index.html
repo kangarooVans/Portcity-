@@ -444,7 +444,6 @@
             document.getElementById("userNav").style.display = "flex";
             document.getElementById("displayUser").innerText = "Logged in: " + window.currentUser;
             resetIdleTimer();
-            // Recover data on login
             if(window.loadSavedData) window.loadSavedData();
         } else {
             document.getElementById("loginOverlay").style.display = "flex";
@@ -455,7 +454,7 @@
 </script>
 
 <script>
-    // --- PERSISTENCE LOGIC (The fix) ---
+    // --- PERSISTENCE LOGIC WITH 7AM AUTO-RESET ---
     function saveInputs() {
         localStorage.setItem("driverName", document.getElementById("driverName").value);
         localStorage.setItem("cabNumber", document.getElementById("cabNumber").value);
@@ -463,9 +462,28 @@
         localStorage.setItem("notesBox", document.getElementById("notesBox").value);
         localStorage.setItem("report", JSON.stringify(report));
         localStorage.setItem("oneWayReport", JSON.stringify(oneWayReport));
+        // Save the time this data was stored
+        localStorage.setItem("lastSaveTimestamp", new Date().getTime());
     }
 
     window.loadSavedData = function() {
+        const lastSave = localStorage.getItem("lastSaveTimestamp");
+        
+        if (lastSave) {
+            const now = new Date();
+            const lastSaveDate = new Date(parseInt(lastSave));
+            
+            const sevenAMToday = new Date();
+            sevenAMToday.setHours(7, 0, 0, 0);
+
+            // Logic: Past 7AM now, but last save was before 7AM today
+            if (now >= sevenAMToday && lastSaveDate < sevenAMToday) {
+                console.log("Auto-Resetting for new day shift...");
+                resetAll(); 
+                return; 
+            }
+        }
+
         document.getElementById("driverName").value = localStorage.getItem("driverName") || "";
         document.getElementById("cabNumber").value = localStorage.getItem("cabNumber") || "";
         document.getElementById("kilometers").value = localStorage.getItem("kilometers") || "";
@@ -535,7 +553,7 @@
         }
 
         updateBookList();
-        saveInputs(); // Save to storage
+        saveInputs();
         document.getElementById("book").value = "";
         document.getElementById("first").value = "";
         document.getElementById("last").value = "";
@@ -639,7 +657,7 @@
 
     function resetAll() {
         report = []; oneWayReport = []; status = ""; editingIndex = null; editingType = null;
-        localStorage.clear(); // Wipe the saved data
+        localStorage.clear(); 
         document.getElementById("bookList").innerText = "No books added yet.";
         document.getElementById("output").innerText = "No summary yet.";
         const today = new Date().toISOString().split('T')[0];
