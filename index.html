@@ -139,6 +139,35 @@
         .rate-table td:last-child { text-align: right; font-weight: bold; color: #fff; }
         .rate-label { color: var(--accent); font-weight: bold; font-size: 14px; margin-bottom: 8px; display: block; }
 
+        /* TICKET TYPE SELECTOR */
+        .type-selector-container {
+            margin-bottom: 15px;
+        }
+        .type-btn {
+            background: #121212;
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+            flex: 1;
+            padding: 10px;
+            font-size: 13px;
+            transition: all 0.2s ease;
+        }
+        .type-btn.active-bothway {
+            background: #4d3d00;
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+        .type-btn.active-oneway {
+            background: #003d80;
+            color: #66b2ff;
+            border-color: var(--blue);
+        }
+        .type-btn.active-student {
+            background: #145223;
+            color: #5cd67d;
+            border-color: var(--success);
+        }
+
         .policy-list {
             list-style: none;
             padding: 0;
@@ -205,7 +234,7 @@
         .add { background: var(--accent); color: #222; width: 100%; margin-top: 15px; }
         .finish { background: var(--header-bg); color: var(--accent); width: 100%; margin-top: 15px; border: 1px solid var(--accent); }
         .reset { background: #333; color: var(--text); width: 100%; margin-top: 10px; border: 1px solid var(--border); }
-        .copy { background: var(--blue); color: white; font-size: 12px; padding: 6px 12px; }
+        .copy { background: var(--blue); color: white; font-size: 13px; padding: 12px; width: 80%; margin: 0 auto; }
 
         #bookList, #output {
             border: 1px solid var(--border);
@@ -308,6 +337,14 @@
         <div class="header">Ticket Entry</div>
         <p>Select Date:</p>
         <input type="date" id="selectedDate">
+        
+        <p>Select Ticket Type:</p>
+        <div class="flex type-selector-container">
+            <button class="type-btn" id="typeBothWay" onclick="setTicketType('bothway')">Both Way</button>
+            <button class="type-btn" id="typeOneWay" onclick="setTicketType('oneway')">One Way</button>
+            <button class="type-btn" id="typeStudent" onclick="setTicketType('student')">Student</button>
+        </div>
+
         <input type="number" id="book" placeholder="Book Number">
         <p>Is the book finished?</p>
         <div class="flex">
@@ -336,7 +373,7 @@
     <div class="panel">
         <div class="header">Summary</div>
         <div class="disclaimer">Verify all details carefully before sending.</div>
-        <div style="display: flex; justify-content: flex-end; margin-bottom: 10px;">
+        <div style="display: flex; justify-content: center; margin-bottom: 15px;">
             <button class="copy" onclick="copySummary()"><i data-lucide="copy" size="14"></i> Copy Summary</button>
         </div>
         <div id="output">No summary yet.</div>
@@ -460,9 +497,9 @@
         localStorage.setItem("cabNumber", document.getElementById("cabNumber").value);
         localStorage.setItem("kilometers", document.getElementById("kilometers").value);
         localStorage.setItem("notesBox", document.getElementById("notesBox").value);
-        localStorage.setItem("report", JSON.stringify(report));
+        localStorage.setItem("bothWayReport", JSON.stringify(bothWayReport));
         localStorage.setItem("oneWayReport", JSON.stringify(oneWayReport));
-        // Save the time this data was stored
+        localStorage.setItem("studentReport", JSON.stringify(studentReport));
         localStorage.setItem("lastSaveTimestamp", new Date().getTime());
     }
 
@@ -476,7 +513,6 @@
             const sevenAMToday = new Date();
             sevenAMToday.setHours(7, 0, 0, 0);
 
-            // Logic: Past 7AM now, but last save was before 7AM today
             if (now >= sevenAMToday && lastSaveDate < sevenAMToday) {
                 console.log("Auto-Resetting for new day shift...");
                 resetAll(); 
@@ -489,11 +525,13 @@
         document.getElementById("kilometers").value = localStorage.getItem("kilometers") || "";
         document.getElementById("notesBox").value = localStorage.getItem("notesBox") || "";
         
-        const savedReport = localStorage.getItem("report");
+        const savedBothWay = localStorage.getItem("bothWayReport");
         const savedOneWay = localStorage.getItem("oneWayReport");
+        const savedStudent = localStorage.getItem("studentReport");
         
-        if (savedReport) report = JSON.parse(savedReport);
+        if (savedBothWay) bothWayReport = JSON.parse(savedBothWay);
         if (savedOneWay) oneWayReport = JSON.parse(savedOneWay);
+        if (savedStudent) studentReport = JSON.parse(savedStudent);
         
         updateBookList();
     }
@@ -517,17 +555,46 @@
     }
 
     let status = "";
-    let report = [];
+    let bothWayReport = [];
     let oneWayReport = [];
+    let studentReport = [];
+    let ticketType = "";
     let editingIndex = null;
     let editingType = null;
 
     function setStatus(choice) { status = choice; document.getElementById("inputs").style.display = "block"; }
 
+    function setTicketType(type) {
+        ticketType = type;
+        
+        document.getElementById("typeBothWay").classList.remove("active-bothway");
+        document.getElementById("typeOneWay").classList.remove("active-oneway");
+        document.getElementById("typeStudent").classList.remove("active-student");
+        
+        if (type === 'bothway') {
+            document.getElementById("typeBothWay").classList.add("active-bothway");
+        } else if (type === 'oneway') {
+            document.getElementById("typeOneWay").classList.add("active-oneway");
+        } else if (type === 'student') {
+            document.getElementById("typeStudent").classList.add("active-student");
+        }
+    }
+
+    function clearTicketTypeSelection() {
+        ticketType = "";
+        document.getElementById("typeBothWay").classList.remove("active-bothway");
+        document.getElementById("typeOneWay").classList.remove("active-oneway");
+        document.getElementById("typeStudent").classList.remove("active-student");
+    }
+
     function addBook() {
         const bookInput = document.getElementById("book").value.trim();
         const firstInput = document.getElementById("first").value.trim();
         const lastInput = document.getElementById("last").value.trim();
+
+        if (!ticketType) {
+            showToast("Please select a Ticket Type", "error"); return;
+        }
 
         if (!bookInput || !firstInput || !lastInput || status === "") {
             showToast("Please fill all fields", "error"); return;
@@ -541,10 +608,24 @@
 
         let tickets = status === "yes" ? (last - first + 1) : (last - first);
         let line = `      TICKETS BOOK NO ${book} - ${first} - ${last} = ${tickets} TICKETS`;
-        const targetArray = book < 100 ? oneWayReport : report;
+        
+        let targetArray;
+        if (ticketType === 'bothway') targetArray = bothWayReport;
+        else if (ticketType === 'oneway') targetArray = oneWayReport;
+        else if (ticketType === 'student') targetArray = studentReport;
 
         if (editingIndex !== null && editingType !== null) {
-            targetArray[editingIndex] = {line: line, tickets: tickets};
+            let sourceArray;
+            if (editingType === 'bothway') sourceArray = bothWayReport;
+            else if (editingType === 'oneway') sourceArray = oneWayReport;
+            else if (editingType === 'student') sourceArray = studentReport;
+            
+            if (editingType === ticketType) {
+                targetArray[editingIndex] = {line: line, tickets: tickets};
+            } else {
+                sourceArray.splice(editingIndex, 1);
+                targetArray.push({line: line, tickets: tickets});
+            }
             editingIndex = null; editingType = null;
             showToast("Book updated successfully", "success");
         } else {
@@ -562,8 +643,11 @@
 
     function updateBookList() {
         const listDiv = document.getElementById("bookList");
-        let combinedList = [...report.map((r,i) => ({...r, type:'normal', idx:i})), 
-                            ...oneWayReport.map((r,i) => ({...r, type:'oneway', idx:i}))];
+        let combinedList = [
+            ...bothWayReport.map((r,i) => ({...r, type:'bothway', idx:i})), 
+            ...oneWayReport.map((r,i) => ({...r, type:'oneway', idx:i})),
+            ...studentReport.map((r,i) => ({...r, type:'student', idx:i}))
+        ];
 
         if (combinedList.length === 0) { listDiv.innerText = "No books added yet."; return; }
 
@@ -571,17 +655,23 @@
         combinedList.forEach((item, i) => {
             const div = document.createElement("div");
             div.className = "book-entry";
-            div.innerHTML = `<span>${i + 1}. ${item.line.trim()}</span> <span class="edit-btn" onclick="editBook('${item.type}', ${item.idx})">Edit</span>`;
+            let typeLabel = item.type === 'bothway' ? 'BOTH' : (item.type === 'oneway' ? 'ONE' : 'STUDENT');
+            div.innerHTML = `<span>${i + 1}. [${typeLabel}] ${item.line.trim()}</span> <span class="edit-btn" onclick="editBook('${item.type}', ${item.idx})">Edit</span>`;
             listDiv.appendChild(div);
         });
     }
 
     function editBook(type, index) {
-        const targetArray = type === 'normal' ? report : oneWayReport;
+        let targetArray;
+        if (type === 'bothway') targetArray = bothWayReport;
+        else if (type === 'oneway') targetArray = oneWayReport;
+        else if (type === 'student') targetArray = studentReport;
+
         const book = targetArray[index];
         const regex = /BOOK NO (\d+) - (\d+) - (\d+)/;
         const matches = book.line.match(regex);
         if (matches) {
+            setTicketType(type);
             document.getElementById("book").value = matches[1];
             document.getElementById("first").value = matches[2];
             document.getElementById("last").value = matches[3];
@@ -592,7 +682,7 @@
     }
 
     function finish() {
-        if (report.length === 0 && oneWayReport.length === 0) { showToast("No books added!", "error"); return; }
+        if (bothWayReport.length === 0 && oneWayReport.length === 0 && studentReport.length === 0) { showToast("No books added!", "error"); return; }
         const dateInput = document.getElementById("selectedDate").value;
         if (!dateInput) { showToast("Please select a date!", "error"); return; }
 
@@ -608,27 +698,36 @@
         else if (day === 6) bookColor = "YELLOW TICKET BOOK";
 
         let message = `*${dateStr}*\n\n*${bookColor}*\n\n`;
-        report.forEach(r => { message += r.line + "\n"; });
+        bothWayReport.forEach(r => { message += r.line + "\n"; });
 
         if (oneWayReport.length > 0) {
             message += `\n*ONE WAY TICKETS*\n\n`;
             oneWayReport.forEach(r => { message += r.line + "\n"; });
         }
 
-        const totalNormal = report.reduce((sum, r) => sum + r.tickets, 0);
+        if (studentReport.length > 0) {
+            message += `\n*STUDENT TICKETS*\n\n`;
+            studentReport.forEach(r => { message += r.line + "\n"; });
+        }
+
+        const totalNormal = bothWayReport.reduce((sum, r) => sum + r.tickets, 0);
         const totalOneWay = oneWayReport.reduce((sum, r) => sum + r.tickets, 0);
+        const totalStudent = studentReport.reduce((sum, r) => sum + r.tickets, 0);
 
         const normalTotalLKR = totalNormal * 300;
         const oneWayTotalLKR = totalOneWay * 200;
-        const totalTicketAmount = normalTotalLKR + oneWayTotalLKR;
+        const studentTotalLKR = totalStudent * 150;
+        const totalTicketAmount = normalTotalLKR + oneWayTotalLKR + studentTotalLKR;
 
         const formattedNormal = normalTotalLKR.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         const formattedOneWay = oneWayTotalLKR.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        const formattedStudent = studentTotalLKR.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         const formattedTotal = totalTicketAmount.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 
         message += `\n*TICKET SUMMARY*\n\n`;
         message += `      NORMAL TICKETS ${totalNormal}*300 = LKR ${formattedNormal}\n`;
-        message += `      ONEWAY TICKETS ${totalOneWay}*200 = LKR ${formattedOneWay}\n\n`;
+        message += `      ONEWAY TICKETS ${totalOneWay}*200 = LKR ${formattedOneWay}\n`;
+        message += `      STUDENT TICKETS ${totalStudent}*150 = LKR ${formattedStudent}\n\n`;
         message += `TOTAL AMOUNT = LKR ${formattedTotal}`;
 
         const driver = document.getElementById("driverName").value || "N/A";
@@ -656,7 +755,7 @@
     }
 
     function resetAll() {
-        report = []; oneWayReport = []; status = ""; editingIndex = null; editingType = null;
+        bothWayReport = []; oneWayReport = []; studentReport = []; status = ""; editingIndex = null; editingType = null;
         localStorage.clear(); 
         document.getElementById("bookList").innerText = "No books added yet.";
         document.getElementById("output").innerText = "No summary yet.";
@@ -665,6 +764,7 @@
         document.getElementById("driverName").value = "";
         document.getElementById("cabNumber").value = ""; document.getElementById("kilometers").value = "";
         document.getElementById("notesBox").value = ""; document.getElementById("inputs").style.display = "none";
+        clearTicketTypeSelection();
         showToast("All data cleared", "info");
     }
 
